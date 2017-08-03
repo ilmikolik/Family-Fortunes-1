@@ -1,0 +1,149 @@
+<html>
+<title>Family Fortunes</title>
+<script type="text/javascript" src="data.json"></script>
+<script type="text/javascript" src="jquery-1.6.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+    var wrongAudio = new Audio("wrong.wav");
+    var correctAudio = new Audio("correct.wav");
+    var topAudio = new Audio("top.wav");
+
+    var currentQ = -1;
+    var wrongAnswers = 0;
+
+    function showQuestion() {
+        var q = questions[currentQ];
+        var title = q[0];
+        var answers = q[1];
+        $('#main').empty().append($("<h1></h1>").text((currentQ + 1).toString() + ". " + title));
+        $.each(answers, function(idx, answer) {
+            $('#main').append(
+              $('<p id="id_ans_' + (idx + 1).toString() + '"></p>').text((idx + 1).toString() + " ")
+              .append($('<span class="placeholder">_ _ _ _ _ _ _ _ _ _</span>'))
+              .append($('<span class="answer" style="display: none;"></span>').text(answer))
+            );
+        });
+        $('#wrong div').hide();
+        wrongAnswers = 0;
+    }
+
+    function showNext() {
+        currentQ++;
+        showQuestion();
+    }
+
+    function showPrevious() {
+        currentQ--;
+        if (currentQ < 0) {
+            currentQ = 0;
+        }
+        showQuestion();
+    }
+
+    function showAnswer(n) {
+        if ($('#id_ans_' + n.toString() + ' .placeholder').is(':visible')) {
+            var snd;
+            if (n == 1) {
+                topAudio.play();
+            } else {
+                correctAudio.play()
+            }
+        }
+        $('#id_ans_' + n.toString() + ' .placeholder').toggle();
+        $('#id_ans_' + n.toString() + ' .answer').toggle();
+    }
+
+    function uhoh() {
+        wrongAudio.play();
+    }
+
+    function addWrongAnswer() {
+        uhoh();
+        wrongAnswers = Math.min(wrongAnswers + 1, 3);
+        $('#w' + wrongAnswers.toString()).show();
+    }
+
+    function removeWrongAnswer() {
+        $('#w' + wrongAnswers.toString()).hide();
+        wrongAnswers = Math.max(wrongAnswers - 1, 0);
+    }
+
+    $(document).bind('keypress', function(e) {
+        var cc = e.charCode === 0 || e.charCode === undefined ? e.keyCode : e.charCode;
+        var n = cc - 48;
+        var k = String.fromCharCode(cc)
+        if (n > 0 && n < 6) {
+            showAnswer(n);
+        }
+        if (k.toLowerCase() == 'n') {
+            showNext();
+        }
+        if (k.toLowerCase() == 'p') {
+            showPrevious();
+        }
+        if (k.toLowerCase() == 'x') {
+            addWrongAnswer();
+        }
+        if (k.toLowerCase() == 'z') {
+            removeWrongAnswer();
+        }
+        if (k == ' ') {
+            uhoh();
+        }
+    });
+});
+
+</script>
+
+<style type="text/css">
+
+@font-face {
+  font-family: 'led';
+  src: url('BPdots.otf');
+}
+
+body {
+ background: black;
+ color: yellow;
+ font-weight: bold;
+ font-family: verdana;
+}
+
+#main {
+    margin-right: 120px;
+}
+
+#main h1 {
+    font-size: 40px;
+}
+
+#main p, #wrong {
+    font-family: 'led';
+}
+
+#main p {
+    font-size: 60px;
+    margin-left: 50px;
+}
+
+#wrong {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 150px;
+}
+
+</style>
+
+<body>
+<div id='main'>
+</div>
+<div id='wrong'>
+<div id='w1' style="display: none;">X</div>
+<div id='w2' style="display: none;">X</div>
+<div id='w3' style="display: none;">X</div>
+</div>
+</body>
+</html>
